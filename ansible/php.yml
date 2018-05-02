@@ -1,0 +1,28 @@
+---  
+- name: This will setup a PHP Server
+  hosts: all
+  gather_facts: true
+  become: true
+  vars:
+    php_enable_webserver: false
+    php_enable_php_fpm: true
+    php_memory_limit: "192M"
+    php_enablerepo: "remi,remi-php70"
+    php_install_recommends: no
+    vars_files:
+    - vars/main.yml
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+      changed_when: false
+
+    # Ubuntu-specific tasks.
+    - name: Add repository for PHP 7.
+      apt_repository: repo='ppa:ondrej/php'
+      when: ansible_distribution == 'Ubuntu'
+
+  roles:
+    - role: geerlingguy.php
+    

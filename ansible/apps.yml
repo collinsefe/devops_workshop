@@ -1,0 +1,27 @@
+---
+ - name: install required packages
+   apt: update_cache=yes cache_valid_time=600
+   apt: pkg={{item}} state=installed
+   with_items:
+     - vim
+     - curl
+     - wget
+     - git
+     - zip
+     - unzip
+     - ntp
+     - php-cli
+     - php-mbstring
+
+   
+
+ 
+
+    
+
+
+
+
+
+
+

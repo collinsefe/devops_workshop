@@ -1,0 +1,75 @@
+{
+    "variables": {},
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "region": "eu-west-1",
+            "vpc_id": "vpc-dd72ccbb",
+            "subnet_id": "subnet-7b7ca033",
+            "security_group_id": "",
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                    "name": "dcuk-ubuntu-16.04-*",
+                    "root-device-type": "ebs"
+                },
+                "most_recent": true
+            },
+            "instance_type": "t2.medium",
+            "ssh_username": "ubuntu",
+            "ami_name": "itsnwe-nginx-ami-{{timestamp}}",
+            "ami_description": "Deloitte-ITSNWE Approved NGINX AMI",
+            "associate_public_ip_address": "true",
+            "ssh_keypair_name": "itsnwe-003",
+            "ami_users": [
+                "943895596097",
+                "746556675560",
+                "040189630112"
+            ],
+            "ssh_private_key_file": "/Users/corighose/Documents/aws/itsnwe-003.pem",
+            "tags": {
+                "Name": "itsnwe-nginx-ami.v1.0",
+                "SourceAMI": "Deloitte Approved Ubuntu 16.04"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "files/apps1.sh"
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "ansible/nginx.yml",
+            "extra_arguments": [
+                "-u=root"
+            ]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "ansible/php.yml",
+            "extra_arguments": [
+                "-u=root"
+            ]
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "sudo apt-get update -y",
+                "ssh-keyscan github.com >> ~/.ssh/known_hosts",
+                "git clone https://github.com/collinsefe/discover_deloitte.git",
+                "sudo cp ~/discover_deloitte/info.php /var/www/html",
+                "sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bkp",
+                "sudo cp ~/discover_deloitte/default /etc/nginx/sites-available",
+                "sudo mv /etc/php/7.0/fpm/php.ini /etc/php/7.0/fpm/php.ini.bkp",
+                "sudo cp ~/discover_deloitte/php.ini /etc/php/7.0/fpm",
+                "sudo rm -rf ~/discover_deloitte/"
+            ]
+        },
+        {
+            "type": "shell",
+            "script": "files/apps2.sh"
+         }
+    ]
+}
+
